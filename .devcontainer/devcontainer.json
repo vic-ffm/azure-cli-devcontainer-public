@@ -44,7 +44,7 @@
       "description": "Azure Service Principal Secret"
     },
     "ARM_TENANT_ID": {
-      "description": "Azure AD Tenant ID"
+      "description": "Entra ID Tenant ID"
     },
     "ARM_SUBSCRIPTION_ID": {
       "description": "Default Azure Subscription ID"
@@ -65,8 +65,7 @@
     {
       "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.ssh",
       "target": "/home/vscode/.ssh",
-      "type": "bind",
-      "consistency": "cached"
+      "type": "bind"
     }
   ],
 
@@ -136,12 +135,12 @@
         },
 
         "[opentofu]": {
-          "editor.defaultFormatter": "OpenTofu.vscode-opentofu",
+          "editor.defaultFormatter": "opentofu.vscode-opentofu",
           "editor.formatOnSave": true,
           "editor.tabSize": 2
         },
         "[opentofu-vars]": {
-          "editor.defaultFormatter": "OpenTofu.vscode-opentofu"
+          "editor.defaultFormatter": "opentofu.vscode-opentofu"
         },
         "[json]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -170,16 +169,23 @@
         "todo-tree.general.tags": ["TODO", "FIXME", "HACK", "SECURITY"],
 
         "cSpell.words": [
-          "azurerm", "opentofu", "tofu", "tflint", "terragrunt",
-          "tfsec", "tfvars", "tfstate", "devcontainer"
+          "azurerm",
+          "opentofu",
+          "tofu",
+          "tflint",
+          "terragrunt",
+          "tfsec",
+          "tfvars",
+          "tfstate",
+          "devcontainer"
         ]
       }
     }
   },
 
   "hostRequirements": {
-    "cpus": 4,
-    "memory": "8gb",
+    "cpus": 2,
+    "memory": "4gb",
     "storage": "32gb"
   }
 }

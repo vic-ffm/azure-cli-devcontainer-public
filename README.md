@@ -133,7 +133,7 @@ The following Azure CLI extensions are installed:
 
 | Extension | Identifier                 | Purpose                                                 |
 | --------- | -------------------------- | ------------------------------------------------------- |
-| OpenTofu  | `OpenTofu.vscode-opentofu` | OpenTofu language support, IntelliSense, and formatting |
+| OpenTofu  | `opentofu.vscode-opentofu` | OpenTofu language support, IntelliSense, and formatting |
 | tfsec     | `tfsec.tfsec`              | Security scanning integration                           |
 
 **Azure Development**

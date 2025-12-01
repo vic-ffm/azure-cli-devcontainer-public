@@ -12,13 +12,13 @@ mkdir -p /home/vscode/.local/bin
 chmod 700 /home/vscode/.azure 2>/dev/null || true
 chmod 700 /home/vscode/.ssh 2>/dev/null || true
 
-# Install additional infrastructure tools (not from HashiCorp)
+# Install additional infrastructure tools
 echo "Installing additional infrastructure tools..."
 
-# User-local bin directory (no sudo required, follows least-privilege principle)
+# User local bin directory (no sudo required)
 LOCAL_BIN="/home/vscode/.local/bin"
 
-# Install TFLint (from terraform-linters, not HashiCorp)
+# Install TFLint (from terraform-linters)
 echo "  Installing TFLint..."
 TFLINT_VERSION=$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
 curl -sL "https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip" -o /tmp/tflint.zip
@@ -27,19 +27,19 @@ chmod +x /tmp/tflint
 mv /tmp/tflint "$LOCAL_BIN/tflint"
 rm -f /tmp/tflint.zip
 
-# Install Terragrunt (from Gruntwork, not HashiCorp)
+# Install Terragrunt (from Gruntwork)
 echo "  Installing Terragrunt..."
 TERRAGRUNT_VERSION=$(curl -s https://api.github.com/repos/gruntwork-io/terragrunt/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
 curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o "$LOCAL_BIN/terragrunt"
 chmod +x "$LOCAL_BIN/terragrunt"
 
-# Install tfsec (from Aqua Security, not HashiCorp)
+# Install tfsec (from Aqua Security)
 echo "  Installing tfsec..."
 TFSEC_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
 curl -sL "https://github.com/aquasecurity/tfsec/releases/download/v${TFSEC_VERSION}/tfsec-linux-amd64" -o "$LOCAL_BIN/tfsec"
 chmod +x "$LOCAL_BIN/tfsec"
 
-# Install terraform-docs (from terraform-docs org, not HashiCorp)
+# Install terraform-docs (from terraform-docs org)
 echo "  Installing terraform-docs..."
 TFDOCS_VERSION=$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
 curl -sL "https://github.com/terraform-docs/terraform-docs/releases/download/v${TFDOCS_VERSION}/terraform-docs-v${TFDOCS_VERSION}-linux-amd64.tar.gz" | tar -xz -C /tmp
@@ -54,7 +54,7 @@ ZSHRC="/home/vscode/.zshrc"
 # Set theme
 sed -i 's/^ZSH_THEME=.*/ZSH_THEME="agnoster"/' "$ZSHRC"
 
-# Configure plugins (removed terraform plugin as it's HashiCorp-specific)
+# Configure plugins
 PLUGINS="git azure docker docker-compose gh z colored-man-pages sudo history jsontools"
 sed -i "s/^plugins=.*/plugins=($PLUGINS)/" "$ZSHRC"
 
