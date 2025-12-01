@@ -4,6 +4,98 @@
 
 This repository provides a standardised development container for Azure infrastructure management. The container is pre configured with essential tooling for Infrastructure as Code (IaC) workflows, including OpenTofu, Azure CLI, and associated security scanning utilities.
 
+## Getting Started
+
+### Initial Setup
+
+1. Clone this repository to the local workstation
+2. Open the repository folder in Visual Studio Code
+3. When prompted, select "Reopen in Container" or execute the command `Dev Containers: Reopen in Container` from the Command Palette
+4. The container build process will commence automatically
+
+Initial build time is approximately 5-10 minutes depending on network conditions. Subsequent launches utilise cached layers.
+
+### Authentication Methods
+
+#### Interactive Authentication
+
+For interactive development sessions, device code authentication is recommended:
+
+```bash
+az login --use-device-code
+```
+
+A URL and code will be displayed. These credentials must be entered in a browser to complete authentication. The authenticated session persists within the container volume across restarts.
+
+#### Service Principal Authentication
+
+For automated workflows or when interactive authentication is not feasible, Service Principal credentials may be configured:
+
+1. Copy the template file to create an environment file:
+
+   ```bash
+   cp .devcontainer/.env.example .env
+   ```
+
+2. Populate the environment file with Service Principal credentials:
+
+   ```bash
+   ARM_CLIENT_ID=<application-id>
+   ARM_CLIENT_SECRET=<client-secret>
+   ARM_TENANT_ID=<tenant-id>
+   ARM_SUBSCRIPTION_ID=<subscription-id>
+   ```
+
+3. Execute the authentication command:
+
+   ```bash
+   azsp
+   ```
+
+The `.env` file is excluded from version control via `.gitignore`. Credentials must never be committed to the repository.
+
+## Use Cases
+
+This development container is designed for the following scenarios:
+
+### Appropriate Use Cases
+
+| Scenario                         | Description                                                                 |
+| -------------------------------- | --------------------------------------------------------------------------- |
+| Azure Resource Provisioning      | OpenTofu deployment of Azure infrastructure components                      |
+| Multi-Environment Management     | Managing development, staging, and production infrastructure configurations |
+| Infrastructure Security Scanning | Security validation using tfsec                                             |
+| Azure Administration             | Azure resource management and automation                                    |
+| CI/CD Pipeline Development       | Creating and testing GitHub Actions workflows for infrastructure deployment |
+| Infrastructure Documentation     | Automated generation of OpenTofu module documentation                       |
+| PowerShell Automation            | Azure automation scripts using Az PowerShell modules                        |
+
+### Example Workflows
+
+**OpenTofu Validation Workflow:**
+
+```bash
+tofucheck
+```
+
+This command executes format checking, validation, linting, and security scanning in sequence.
+
+**Infrastructure Deployment:**
+
+```bash
+tofui                  # Initialise OpenTofu
+tofup                  # Generate and review plan
+tofua                  # Apply changes
+```
+
+**Multi-Module Deployment with Terragrunt:**
+
+```bash
+tgrai                  # Initialise all modules
+tgrap                  # Plan all modules
+tgraa                  # Apply all modules
+```
+
 ## Included Components
 
 ### Command Line Tools
@@ -101,98 +193,6 @@ The container is configured with zsh as the default shell, enhanced with Oh My Z
 - sudo
 - history
 - jsontools
-
-## Getting Started
-
-### Initial Setup
-
-1. Clone this repository to the local workstation
-2. Open the repository folder in Visual Studio Code
-3. When prompted, select "Reopen in Container" or execute the command `Dev Containers: Reopen in Container` from the Command Palette
-4. The container build process will commence automatically
-
-Initial build time is approximately 5-10 minutes depending on network conditions. Subsequent launches utilise cached layers.
-
-### Authentication Methods
-
-#### Interactive Authentication
-
-For interactive development sessions, device code authentication is recommended:
-
-```bash
-az login --use-device-code
-```
-
-A URL and code will be displayed. These credentials must be entered in a browser to complete authentication. The authenticated session persists within the container volume across restarts.
-
-#### Service Principal Authentication
-
-For automated workflows or when interactive authentication is not feasible, Service Principal credentials may be configured:
-
-1. Copy the template file to create an environment file:
-
-   ```bash
-   cp .devcontainer/.env.example .env
-   ```
-
-2. Populate the environment file with Service Principal credentials:
-
-   ```bash
-   ARM_CLIENT_ID=<application-id>
-   ARM_CLIENT_SECRET=<client-secret>
-   ARM_TENANT_ID=<tenant-id>
-   ARM_SUBSCRIPTION_ID=<subscription-id>
-   ```
-
-3. Execute the authentication command:
-
-   ```bash
-   azsp
-   ```
-
-The `.env` file is excluded from version control via `.gitignore`. Credentials must never be committed to the repository.
-
-## Use Cases
-
-This development container is designed for the following scenarios:
-
-### Appropriate Use Cases
-
-| Scenario                         | Description                                                                 |
-| -------------------------------- | --------------------------------------------------------------------------- |
-| Azure Resource Provisioning      | OpenTofu deployment of Azure infrastructure components                      |
-| Multi-Environment Management     | Managing development, staging, and production infrastructure configurations |
-| Infrastructure Security Scanning | Security validation using tfsec                                             |
-| Azure Administration             | Azure resource management and automation                                    |
-| CI/CD Pipeline Development       | Creating and testing GitHub Actions workflows for infrastructure deployment |
-| Infrastructure Documentation     | Automated generation of OpenTofu module documentation                       |
-| PowerShell Automation            | Azure automation scripts using Az PowerShell modules                        |
-
-### Example Workflows
-
-**OpenTofu Validation Workflow:**
-
-```bash
-tofucheck
-```
-
-This command executes format checking, validation, linting, and security scanning in sequence.
-
-**Infrastructure Deployment:**
-
-```bash
-tofui                  # Initialise OpenTofu
-tofup                  # Generate and review plan
-tofua                  # Apply changes
-```
-
-**Multi-Module Deployment with Terragrunt:**
-
-```bash
-tgrai                  # Initialise all modules
-tgrap                  # Plan all modules
-tgraa                  # Apply all modules
-```
 
 ## Limitations and Exclusions
 
