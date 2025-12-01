@@ -1,0 +1,87 @@
+# ============================================
+# SECURITY-CRITICAL: Azure & Credentials
+# ============================================
+
+# Azure CLI configuration and tokens
+.azure/
+**/.azure/
+azure.json
+azureProfile.json
+
+# Service Principal and environment secrets
+.env
+.env.*
+!.env.example
+*.env
+
+# Azure Resource Manager template parameters with secrets
+*.parameters.local.json
+*-local.parameters.json
+
+# ============================================
+# OpenTofu Security
+# ============================================
+
+# OpenTofu state files (may contain secrets)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform.tfstate.lock.info
+
+# OpenTofu variables with secrets
+*.auto.tfvars
+*.local.tfvars
+terraform.tfvars
+!terraform.tfvars.example
+
+# OpenTofu directories
+.opentofu/
+**/.opentofu/
+.terraform/
+**/.terraform/
+
+# OpenTofu crash logs
+crash.log
+crash.*.log
+
+# OpenTofu plan files (may contain secrets)
+*.tfplan
+*.plan
+plan.out
+
+# ============================================
+# Override files (may contain secrets)
+# ============================================
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ============================================
+# Terragrunt
+# ============================================
+.terragrunt-cache/
+**/.terragrunt-cache/
+
+# ============================================
+# IDE & Editor
+# ============================================
+.vscode/settings.local.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================
+# OS Generated
+# ============================================
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Temporary & Build
+# ============================================
+tmp/
+temp/
+*.tmp
+*.log

@@ -1,0 +1,185 @@
+{
+  "name": "Azure Infrastructure Management",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+
+  "containerUser": "vscode",
+  "remoteUser": "vscode",
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "configureZshAsDefaultShell": true,
+      "username": "vscode",
+      "userUid": "1000",
+      "userGid": "1000",
+      "upgradePackages": true
+    },
+    "ghcr.io/devcontainers/features/azure-cli:1": {
+      "version": "latest",
+      "extensions": "account,resource-graph,containerapp,aks-preview,front-door"
+    },
+    "ghcr.io/devcontainers-extra/features/opentofu:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true,
+      "dockerDashComposeVersion": "v2",
+      "installDockerBuildx": true
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/powershell:1": {
+      "version": "latest"
+    }
+  },
+
+  "secrets": {
+    "ARM_CLIENT_ID": {
+      "description": "Azure Service Principal Client ID"
+    },
+    "ARM_CLIENT_SECRET": {
+      "description": "Azure Service Principal Secret"
+    },
+    "ARM_TENANT_ID": {
+      "description": "Azure AD Tenant ID"
+    },
+    "ARM_SUBSCRIPTION_ID": {
+      "description": "Default Azure Subscription ID"
+    }
+  },
+
+  "mounts": [
+    {
+      "source": "azure-cli-config-${devcontainerId}",
+      "target": "/home/vscode/.azure",
+      "type": "volume"
+    },
+    {
+      "source": "opentofu-plugin-cache-${devcontainerId}",
+      "target": "/home/vscode/.opentofu.d/plugin-cache",
+      "type": "volume"
+    },
+    {
+      "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.ssh",
+      "target": "/home/vscode/.ssh",
+      "type": "bind",
+      "consistency": "cached"
+    }
+  ],
+
+  "containerEnv": {
+    "AZURE_CONFIG_DIR": "/home/vscode/.azure",
+    "AZURE_CORE_COLLECT_TELEMETRY": "false",
+    "TF_PLUGIN_CACHE_DIR": "/home/vscode/.opentofu.d/plugin-cache",
+    "TOFU_PLUGIN_CACHE_DIR": "/home/vscode/.opentofu.d/plugin-cache",
+    "ARM_SKIP_PROVIDER_REGISTRATION": "true",
+    "CHECKPOINT_DISABLE": "true",
+    "EDITOR": "code --wait",
+    "VISUAL": "code --wait"
+  },
+
+  "runArgs": [
+    "--init",
+    "--cap-drop=ALL",
+    "--cap-add=NET_BIND_SERVICE",
+    "--cap-add=DAC_OVERRIDE",
+    "--security-opt=no-new-privileges:true"
+  ],
+
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+  "postStartCommand": "bash .devcontainer/scripts/post-start.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "OpenTofu.vscode-opentofu",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.powershell",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        "redhat.vscode-yaml",
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "usernamehw.errorlens",
+        "Gruntfuggly.todo-tree",
+        "timonwong.shellcheck",
+        "tfsec.tfsec",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "zsh": { "path": "/bin/zsh", "args": ["-l"] },
+          "bash": { "path": "/bin/bash" },
+          "pwsh": { "path": "/usr/bin/pwsh" }
+        },
+
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.rulers": [80, 120],
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active",
+
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "files.exclude": {
+          "**/.opentofu": true,
+          "**/.terraform": true,
+          "**/.terragrunt-cache": true
+        },
+
+        "[opentofu]": {
+          "editor.defaultFormatter": "OpenTofu.vscode-opentofu",
+          "editor.formatOnSave": true,
+          "editor.tabSize": 2
+        },
+        "[opentofu-vars]": {
+          "editor.defaultFormatter": "OpenTofu.vscode-opentofu"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[yaml]": {
+          "editor.defaultFormatter": "redhat.vscode-yaml"
+        },
+        "[powershell]": {
+          "editor.defaultFormatter": "ms-vscode.powershell",
+          "editor.tabSize": 4
+        },
+
+        "opentofu.languageServer.enable": true,
+        "opentofu.codelens.referenceCount": true,
+        "opentofu.experimentalFeatures.validateOnSave": true,
+        "opentofu.experimentalFeatures.prefillRequiredFields": true,
+
+        "powershell.codeFormatting.preset": "OTBS",
+        "powershell.integratedConsole.showOnStartup": false,
+
+        "gitlens.currentLine.enabled": true,
+        "gitlens.codeLens.enabled": true,
+
+        "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+
+        "todo-tree.general.tags": ["TODO", "FIXME", "HACK", "SECURITY"],
+
+        "cSpell.words": [
+          "azurerm", "opentofu", "tofu", "tflint", "terragrunt",
+          "tfsec", "tfvars", "tfstate", "devcontainer"
+        ]
+      }
+    }
+  },
+
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  }
+}
