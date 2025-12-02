@@ -179,7 +179,7 @@ The following Azure CLI extensions are installed:
 
 The container is configured with zsh as the default shell, enhanced with Oh My Zsh.
 
-**Theme:** agnoster
+**Theme:** bira
 
 **Enabled Plugins:**
 

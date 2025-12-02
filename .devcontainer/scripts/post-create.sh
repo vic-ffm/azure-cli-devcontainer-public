@@ -52,7 +52,7 @@ echo "  Tools installation complete."
 ZSHRC="/home/vscode/.zshrc"
 
 # Set theme
-sed -i 's/^ZSH_THEME=.*/ZSH_THEME="agnoster"/' "$ZSHRC"
+sed -i 's/^ZSH_THEME=.*/ZSH_THEME="bira"/' "$ZSHRC"
 
 # Configure plugins
 PLUGINS="git azure docker docker-compose gh z colored-man-pages sudo history jsontools"
