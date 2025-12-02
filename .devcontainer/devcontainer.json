@@ -33,7 +33,8 @@
     },
     "ghcr.io/devcontainers/features/powershell:1": {
       "version": "latest"
-    }
+    },
+    "ghcr.io/schlich/devcontainer-features/powerlevel10k:1": {}
   },
 
   "secrets": {

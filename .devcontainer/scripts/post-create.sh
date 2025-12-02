@@ -48,13 +48,24 @@ mv /tmp/terraform-docs "$LOCAL_BIN/terraform-docs"
 
 echo "  Tools installation complete."
 
-# Configure oh-my-zsh
+# Configure Powerlevel10k (ASCII mode - no special fonts required)
 ZSHRC="/home/vscode/.zshrc"
 
-# Set theme
-sed -i 's/^ZSH_THEME=.*/ZSH_THEME="bira"/' "$ZSHRC"
+# Copy p10k config from devcontainer
+WORKSPACE_DIR=$(find /workspaces -maxdepth 1 -type d ! -name workspaces 2>/dev/null | head -1)
+if [ -n "$WORKSPACE_DIR" ] && [ -f "$WORKSPACE_DIR/.devcontainer/p10k.zsh" ]; then
+    cp "$WORKSPACE_DIR/.devcontainer/p10k.zsh" /home/vscode/.p10k.zsh
+    echo "Powerlevel10k configuration installed (ASCII mode)"
+fi
 
-# Configure plugins
+# Ensure p10k is sourced in .zshrc
+if ! grep -q "p10k.zsh" "$ZSHRC" 2>/dev/null; then
+    echo '' >> "$ZSHRC"
+    echo '# Powerlevel10k configuration' >> "$ZSHRC"
+    echo '[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh' >> "$ZSHRC"
+fi
+
+# Configure oh-my-zsh plugins
 PLUGINS="git azure docker docker-compose gh z colored-man-pages sudo history jsontools"
 sed -i "s/^plugins=.*/plugins=($PLUGINS)/" "$ZSHRC"
 
