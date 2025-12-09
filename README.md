@@ -13,7 +13,6 @@ This repository provides a standardised development container for Azure infrastr
 3. When prompted, select "Reopen in Container" or execute the command `Dev Containers: Reopen in Container` from the Command Palette
 4. The container build process will commence automatically
 
-Initial build time is approximately 5-10 minutes depending on network conditions. Subsequent launches utilise cached layers.
 
 ### Authentication Methods
 
@@ -25,7 +24,6 @@ For interactive development sessions, device code authentication is recommended:
 az login --use-device-code
 ```
 
-A URL and code will be displayed. These credentials must be entered in a browser to complete authentication. The authenticated session persists within the container volume across restarts.
 
 #### Service Principal Authentication
 
@@ -201,19 +199,6 @@ The prompt displays the current directory, git status, and contextual informatio
 - extract
 - encode64
 
-## Limitations and Exclusions
-
-This development container is **not intended** for the following purposes:
-
-| Exclusion               | Rationale                                                                                                                              |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Application Development | No application runtimes (Node.js, Python, .NET, Java) are installed. Application development requires purpose-built containers.        |
-| Data Science Workloads  | Machine learning frameworks, Jupyter notebooks, and data processing tools are not included.                                            |
-| Production Hosting      | The container is designed for development workflows only. Production workloads must be deployed to appropriate hosting infrastructure. |
-| Long Running Services   | The container is optimised for interactive development sessions. Daemon processes and background services are not supported.           |
-| Database Administration | Database client tools and administration utilities are not installed. Database management requires dedicated tooling.                  |
-| Kubernetes Operations   | While `kubectl` contexts may be configured, comprehensive Kubernetes development tooling is not included.                              |
-| HashiCorp Terraform     | This container uses OpenTofu exclusively. HashiCorp Terraform is not installed.                                                        |
 
 ## Security Considerations
 
