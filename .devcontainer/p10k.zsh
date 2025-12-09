@@ -29,6 +29,7 @@
     virtualenv              # python virtualenv
     pyenv                   # python version from pyenv
     nodeenv                 # node.js environment
+    terraform               # terraform/tofu workspace
     azure                   # azure account name
     context                 # user@hostname (SSH only)
   )
@@ -156,6 +157,12 @@
   typeset -g POWERLEVEL9K_AZURE_FOREGROUND=4
   typeset -g POWERLEVEL9K_AZURE_SHOW_SUBSCRIPTION=true
   typeset -g POWERLEVEL9K_AZURE_VISUAL_IDENTIFIER_EXPANSION='az'
+
+  # Terraform/OpenTofu workspace
+  typeset -g POWERLEVEL9K_TERRAFORM_FOREGROUND=5
+  typeset -g POWERLEVEL9K_TERRAFORM_VISUAL_IDENTIFIER_EXPANSION='tf'
+  # Only show when running terraform/tofu commands
+  typeset -g POWERLEVEL9K_TERRAFORM_SHOW_ON_COMMAND='terraform|tofu|terragrunt|tg'
 
   # Context (user@host) - only show in SSH sessions
   typeset -g POWERLEVEL9K_CONTEXT_FOREGROUND=7

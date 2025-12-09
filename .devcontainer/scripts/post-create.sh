@@ -1,59 +1,44 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "=== Azure Infrastructure DevContainer Setup ==="
+echo "=== Azure CLI DevContainer Setup ==="
+
+# Find workspace directory dynamically
+WORKSPACE_DIR=$(find /workspaces -maxdepth 1 -type d ! -name workspaces 2>/dev/null | head -1)
+if [ -z "$WORKSPACE_DIR" ]; then
+    WORKSPACE_DIR="/workspaces"
+fi
 
 # Create directories
 mkdir -p /home/vscode/.opentofu.d/plugin-cache
 mkdir -p /home/vscode/.terragrunt-cache
-mkdir -p /home/vscode/.local/bin
+mkdir -p /home/vscode/.local/share/mise/state
 
 # Secure permissions
 chmod 700 /home/vscode/.azure 2>/dev/null || true
 chmod 700 /home/vscode/.ssh 2>/dev/null || true
 
-# Install additional infrastructure tools
-echo "Installing additional infrastructure tools..."
+# Install tools via mise (reads from mise.toml)
+echo "Installing tools via mise..."
+if [ -d "$WORKSPACE_DIR" ] && [ -f "$WORKSPACE_DIR/mise.toml" ]; then
+    cd "$WORKSPACE_DIR"
+    mise install --yes
+    echo "  Tools installed from mise.toml"
+else
+    echo "  No mise.toml found, skipping mise install"
+fi
 
-# User local bin directory (no sudo required)
-LOCAL_BIN="/home/vscode/.local/bin"
-
-# Install TFLint (from terraform-linters)
-echo "  Installing TFLint..."
-TFLINT_VERSION=$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-curl -sL "https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip" -o /tmp/tflint.zip
-unzip -o -q /tmp/tflint.zip -d /tmp
-chmod +x /tmp/tflint
-mv /tmp/tflint "$LOCAL_BIN/tflint"
-rm -f /tmp/tflint.zip
-
-# Install Terragrunt (from Gruntwork)
-echo "  Installing Terragrunt..."
-TERRAGRUNT_VERSION=$(curl -s https://api.github.com/repos/gruntwork-io/terragrunt/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-curl -sL "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -o "$LOCAL_BIN/terragrunt"
-chmod +x "$LOCAL_BIN/terragrunt"
-
-# Install tfsec (from Aqua Security)
-echo "  Installing tfsec..."
-TFSEC_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-curl -sL "https://github.com/aquasecurity/tfsec/releases/download/v${TFSEC_VERSION}/tfsec-linux-amd64" -o "$LOCAL_BIN/tfsec"
-chmod +x "$LOCAL_BIN/tfsec"
-
-# Install terraform-docs (from terraform-docs org)
-echo "  Installing terraform-docs..."
-TFDOCS_VERSION=$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-curl -sL "https://github.com/terraform-docs/terraform-docs/releases/download/v${TFDOCS_VERSION}/terraform-docs-v${TFDOCS_VERSION}-linux-amd64.tar.gz" | tar -xz -C /tmp
-chmod +x /tmp/terraform-docs
-mv /tmp/terraform-docs "$LOCAL_BIN/terraform-docs"
-
-echo "  Tools installation complete."
+# Initialize TFLint plugins
+echo "Initializing TFLint plugins..."
+if [ -f "$WORKSPACE_DIR/.tflint.hcl" ]; then
+    tflint --init --config="$WORKSPACE_DIR/.tflint.hcl" || echo "  TFLint init skipped (may need network)"
+fi
 
 # Configure Powerlevel10k (ASCII mode - no special fonts required)
 ZSHRC="/home/vscode/.zshrc"
 
 # Copy p10k config from devcontainer
-WORKSPACE_DIR=$(find /workspaces -maxdepth 1 -type d ! -name workspaces 2>/dev/null | head -1)
-if [ -n "$WORKSPACE_DIR" ] && [ -f "$WORKSPACE_DIR/.devcontainer/p10k.zsh" ]; then
+if [ -f "$WORKSPACE_DIR/.devcontainer/p10k.zsh" ]; then
     cp "$WORKSPACE_DIR/.devcontainer/p10k.zsh" /home/vscode/.p10k.zsh
     echo "Powerlevel10k configuration installed (ASCII mode)"
 fi
@@ -66,18 +51,16 @@ if ! grep -q "p10k.zsh" "$ZSHRC" 2>/dev/null; then
 fi
 
 # Configure oh-my-zsh plugins
-PLUGINS="git azure docker docker-compose gh z colored-man-pages sudo history jsontools"
+# Note: terraform plugin works for both terraform and tofu
+PLUGINS="git azure docker docker-compose gh z colored-man-pages sudo history jsontools terraform ansible pip extract encode64"
 sed -i "s/^plugins=.*/plugins=($PLUGINS)/" "$ZSHRC"
 
 # Add custom aliases and functions
 cat >> "$ZSHRC" << 'ALIASES'
 
 # ============================================
-# Azure Infrastructure Management - Custom Config
+# Azure CLI DevContainer - Custom Config
 # ============================================
-
-# Add user-local bin to PATH (for tools installed without sudo)
-export PATH="$HOME/.local/bin:$PATH"
 
 # OpenTofu aliases
 alias tofu='tofu'
@@ -113,10 +96,10 @@ alias azaccs='az account set --subscription'
 alias azaccl='az account list -o table'
 alias azrg='az group list -o table'
 
-# Security scanning
-alias tfscan='tfsec .'
-alias tfscanmed='tfsec . --minimum-severity MEDIUM'
-alias tfscanhigh='tfsec . --minimum-severity HIGH'
+# Security scanning (Trivy)
+alias tfscan='trivy config .'
+alias tfscanmed='trivy config . --severity MEDIUM,HIGH,CRITICAL'
+alias tfscanhigh='trivy config . --severity HIGH,CRITICAL'
 
 # Documentation
 alias tofudocs='terraform-docs markdown table .'
@@ -127,7 +110,7 @@ tofucheck() {
     echo "=== Formatting ===" && tofu fmt -check -recursive
     echo "=== Validating ===" && tofu validate
     echo "=== Linting ===" && tflint
-    echo "=== Security Scan ===" && tfsec . --minimum-severity MEDIUM
+    echo "=== Security Scan ===" && trivy config . --severity HIGH,CRITICAL
 }
 
 # Plan with output file
@@ -183,29 +166,37 @@ setopt AUTO_CD
 setopt AUTO_PUSHD
 ALIASES
 
-# Source .env file if it exists in the workspace
-WORKSPACE_DIR=$(find /workspaces -maxdepth 1 -type d ! -name workspaces 2>/dev/null | head -1)
-if [ -n "$WORKSPACE_DIR" ]; then
-    echo "" >> "$ZSHRC"
-    echo "# Load environment variables from .env if present" >> "$ZSHRC"
-    echo "[ -f \"$WORKSPACE_DIR/.env\" ] && source \"$WORKSPACE_DIR/.env\"" >> "$ZSHRC"
+# Source infrastructure-specific config (additional aliases, functions, completions)
+if [ -f "$WORKSPACE_DIR/.devcontainer/config/zshrc-infra.zsh" ]; then
+    cat "$WORKSPACE_DIR/.devcontainer/config/zshrc-infra.zsh" >> "$ZSHRC"
+    echo "Infrastructure shell enhancements loaded"
 fi
 
-# Configure .bashrc for bash users (add ~/.local/bin to PATH)
+# Source .env file if it exists in the workspace
+echo "" >> "$ZSHRC"
+echo "# Load environment variables from .env if present" >> "$ZSHRC"
+echo "[ -f \"$WORKSPACE_DIR/.env\" ] && source \"$WORKSPACE_DIR/.env\"" >> "$ZSHRC"
+
+# Configure .bashrc for bash users
 BASHRC="/home/vscode/.bashrc"
 if [ -f "$BASHRC" ]; then
     echo "" >> "$BASHRC"
-    echo "# Add user-local bin to PATH" >> "$BASHRC"
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASHRC"
+    echo "# Mise is automatically activated by the devcontainer feature" >> "$BASHRC"
 fi
 
 echo "=== Post-Create Setup Complete ==="
 echo ""
+echo "Tools installed via mise (from mise.toml):"
+echo "  - OpenTofu, Terragrunt, TFLint, Trivy, Just, terraform-docs"
+echo ""
 echo "Available commands:"
+echo "  infrahelp  - Show quick reference for all commands"
+echo "  infoctx    - Show current Azure/Tofu/Docker context"
 echo "  tofucheck  - Run format, validate, lint, and security scan"
+echo "  tofuready  - Run init, validate, and plan"
 echo "  azctx      - Show current Azure context"
 echo "  azsw       - Switch Azure subscription interactively"
 echo "  azsp       - Login with Service Principal from ARM_* environment variables"
-echo "  tfscan     - Run tfsec security scan"
+echo "  tfscan     - Run Trivy security scan"
 echo "  tofudocs   - Generate OpenTofu documentation"
 echo ""

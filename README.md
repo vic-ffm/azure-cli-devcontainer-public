@@ -177,9 +177,11 @@ The following Azure CLI extensions are installed:
 
 ### Shell Environment
 
-The container is configured with zsh as the default shell, enhanced with Oh My Zsh.
+The container is configured with zsh as the default shell, enhanced with Oh My Zsh and Powerlevel10k.
 
-**Theme:** bira
+**Theme:** Powerlevel10k (ASCII mode, no special fonts required)
+
+The prompt displays the current directory, git status, and contextual information including Azure subscription and OpenTofu workspace when relevant commands are executed.
 
 **Enabled Plugins:**
 
@@ -193,6 +195,11 @@ The container is configured with zsh as the default shell, enhanced with Oh My Z
 - sudo
 - history
 - jsontools
+- terraform
+- ansible
+- pip
+- extract
+- encode64
 
 ## Limitations and Exclusions
 
@@ -287,16 +294,56 @@ The following patterns are excluded from version control:
 | `azaccl` | `az account list -o table`      | List subscriptions      |
 | `azrg`   | `az group list -o table`        | List resource groups    |
 
+### Ansible Aliases
+
+| Alias | Command                                   | Description               |
+| ----- | ----------------------------------------- | ------------------------- |
+| `ap`  | `ansible-playbook`                        | Execute playbook          |
+| `av`  | `ansible-vault`                           | Vault management          |
+| `ave` | `ansible-vault edit`                      | Edit encrypted file       |
+| `avv` | `ansible-vault view`                      | View encrypted file       |
+| `avc` | `ansible-vault create`                    | Create encrypted file     |
+| `al`  | `ansible-lint`                            | Lint playbooks            |
+| `ag`  | `ansible-galaxy`                          | Galaxy management         |
+| `agi` | `ansible-galaxy install -r requirements.yml` | Install role dependencies |
+
+### Docker Aliases
+
+| Alias    | Command                    | Description              |
+| -------- | -------------------------- | ------------------------ |
+| `dps`    | `docker ps` (formatted)    | List running containers  |
+| `dpsa`   | `docker ps -a` (formatted) | List all containers      |
+| `dimg`   | `docker images`            | List images              |
+| `dprune` | `docker system prune -af`  | Remove unused resources  |
+| `dlogs`  | `docker logs -f`           | Follow container logs    |
+| `dexec`  | `docker exec -it`          | Execute interactive shell |
+
+### Docker Compose Aliases
+
+| Alias | Command                  | Description      |
+| ----- | ------------------------ | ---------------- |
+| `dcu` | `docker compose up -d`   | Start services   |
+| `dcd` | `docker compose down`    | Stop services    |
+| `dcl` | `docker compose logs -f` | Follow logs      |
+| `dcb` | `docker compose build`   | Build images     |
+| `dcr` | `docker compose restart` | Restart services |
+
 ### Custom Functions
 
-| Function    | Description                                                     |
-| ----------- | --------------------------------------------------------------- |
-| `tofucheck` | Execute format check, validation, linting, and security scan    |
-| `azctx`     | Display current Azure subscription context                      |
-| `azsw`      | Interactive subscription switching                              |
-| `azsp`      | Authenticate using Service Principal from environment variables |
-| `tfscan`    | Execute tfsec security scan                                     |
-| `tofudocs`  | Generate OpenTofu documentation                                 |
+| Function      | Description                                                     |
+| ------------- | --------------------------------------------------------------- |
+| `infrahelp`   | Display quick reference for common commands                     |
+| `infoctx`     | Display current Azure, OpenTofu, and Docker context             |
+| `tofucheck`   | Execute format check, validation, linting, and security scan    |
+| `tofuready`   | Execute init, validate, and plan in sequence                    |
+| `tofuclean`   | Remove local state files and caches                             |
+| `azctx`       | Display current Azure subscription context                      |
+| `azsw`        | Interactive subscription switching                              |
+| `azsp`        | Authenticate using Service Principal from environment variables |
+| `azres`       | List all resources in current subscription                      |
+| `azrgl`       | List resources in specified resource group                      |
+| `tfscan`      | Execute Trivy security scan                                     |
+| `tofudocs`    | Generate OpenTofu documentation                                 |
 
 ## Maintenance
 
@@ -329,7 +376,11 @@ Tool versions are managed via the devcontainer features and post-create script. 
 .
 ├── .devcontainer/
 │   ├── devcontainer.json      # Container configuration
+│   ├── Dockerfile             # Base image configuration
+│   ├── p10k.zsh               # Powerlevel10k theme configuration
 │   ├── .env.example           # Environment variable template
+│   ├── config/
+│   │   └── zshrc-infra.zsh    # Infrastructure shell configuration
 │   └── scripts/
 │       ├── post-create.sh     # One-time setup script
 │       └── post-start.sh      # Container startup script

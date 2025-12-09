@@ -1,0 +1,11 @@
+# Tool versions managed by mise
+# DevContainer: mise install (runs automatically via post-create.sh)
+# Local: mise install
+
+[tools]
+opentofu = "latest"
+terragrunt = "latest"
+tflint = "latest"
+trivy = "latest"
+just = "latest"
+terraform-docs = "latest"
