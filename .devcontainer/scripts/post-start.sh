@@ -1,11 +1,16 @@
 #!/bin/bash
 set -e
 
+# Activate mise to ensure tools are available in non-interactive shell
+if command -v mise &>/dev/null; then
+    eval "$(mise activate bash)"
+fi
+
 echo ""
 echo "=== Azure CLI DevContainer Environment ==="
 echo ""
 echo "Tools:"
-echo "  OpenTofu:       $(tofu version -json 2>/dev/null | jq -r '.opentofu_version' 2>/dev/null || tofu version 2>/dev/null | head -1 || echo 'N/A')"
+echo "  OpenTofu:       $(tofu version 2>/dev/null | head -1 | sed 's/OpenTofu //' || echo 'N/A')"
 echo "  TFLint:         $(tflint --version 2>/dev/null | head -1 || echo 'N/A')"
 echo "  Terragrunt:     $(terragrunt --version 2>/dev/null | head -1 || echo 'N/A')"
 echo "  Trivy:          $(trivy --version 2>/dev/null | head -1 || echo 'N/A')"
@@ -26,9 +31,14 @@ if az account show &>/dev/null; then
     echo "  User: $USER_NAME"
 else
     echo "Azure: Not authenticated"
-    echo "  Interactive login: az login --use-device-code"
-    echo "  Service Principal: azsp (requires ARM_* environment variables)"
 fi
+
+# Authentication options
+echo ""
+echo "Authentication options:"
+echo "  Interactive:       az login --use-device-code"
+echo "  Service Principal: azsp (requires ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID)"
+echo "  Managed Identity:  azmi (for Azure VM-based development)"
 
 # Check Service Principal environment variables
 if [ -n "${ARM_CLIENT_ID:-}" ] && [ -n "${ARM_CLIENT_SECRET:-}" ] && [ -n "${ARM_TENANT_ID:-}" ]; then
@@ -47,10 +57,14 @@ fi
 
 echo ""
 echo "=== Quick Commands ==="
+echo "  infrahelp  - Show quick reference for all commands"
+echo "  infoctx    - Show current Azure/Tofu/Docker context"
 echo "  tofucheck  - Format, validate, lint, and security scan"
+echo "  tofuready  - Run init, validate, and plan"
 echo "  azctx      - Show current Azure context"
 echo "  azsw       - Switch Azure subscription"
 echo "  azsp       - Login with Service Principal"
+echo "  azmi       - Login with Managed Identity"
 echo "  tfscan     - Run Trivy security scan"
 echo "  tofudocs   - Generate OpenTofu documentation"
 echo ""

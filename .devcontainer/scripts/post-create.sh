@@ -3,12 +3,6 @@ set -euo pipefail
 
 echo "=== Azure CLI DevContainer Setup ==="
 
-# Find workspace directory dynamically
-WORKSPACE_DIR=$(find /workspaces -maxdepth 1 -type d ! -name workspaces 2>/dev/null | head -1)
-if [ -z "$WORKSPACE_DIR" ]; then
-    WORKSPACE_DIR="/workspaces"
-fi
-
 # Create directories
 mkdir -p /home/vscode/.opentofu.d/plugin-cache
 mkdir -p /home/vscode/.terragrunt-cache
@@ -18,11 +12,19 @@ mkdir -p /home/vscode/.local/share/mise/state
 chmod 700 /home/vscode/.azure 2>/dev/null || true
 chmod 700 /home/vscode/.ssh 2>/dev/null || true
 
+# Find workspace directory dynamically
+WORKSPACE_DIR=$(find /workspaces -maxdepth 1 -type d ! -name workspaces 2>/dev/null | head -1)
+if [ -z "$WORKSPACE_DIR" ]; then
+    WORKSPACE_DIR="/workspaces"
+fi
+
 # Install tools via mise (reads from mise.toml)
 echo "Installing tools via mise..."
 if [ -d "$WORKSPACE_DIR" ] && [ -f "$WORKSPACE_DIR/mise.toml" ]; then
     cd "$WORKSPACE_DIR"
     mise install --yes
+    # Add mise shims to PATH so tools are available immediately
+    export PATH="/home/vscode/.local/share/mise/shims:$PATH"
     echo "  Tools installed from mise.toml"
 else
     echo "  No mise.toml found, skipping mise install"
@@ -32,6 +34,14 @@ fi
 echo "Initializing TFLint plugins..."
 if [ -f "$WORKSPACE_DIR/.tflint.hcl" ]; then
     tflint --init --config="$WORKSPACE_DIR/.tflint.hcl" || echo "  TFLint init skipped (may need network)"
+fi
+
+# Install pre-commit hooks
+echo "Installing pre-commit hooks..."
+if [ -f "$WORKSPACE_DIR/.pre-commit-config.yaml" ]; then
+    cd "$WORKSPACE_DIR"
+    pre-commit install
+    echo "  Pre-commit hooks installed"
 fi
 
 # Configure Powerlevel10k (ASCII mode - no special fonts required)
@@ -105,7 +115,7 @@ alias tfscanhigh='trivy config . --severity HIGH,CRITICAL'
 alias tofudocs='terraform-docs markdown table .'
 alias tofudocsmd='terraform-docs markdown .'
 
-# Quick validation workflow
+# Quick validation workflow (mirrors CI)
 tofucheck() {
     echo "=== Formatting ===" && tofu fmt -check -recursive
     echo "=== Validating ===" && tofu validate
@@ -154,6 +164,15 @@ azsp() {
     azctx
 }
 
+# Login with managed identity (for VM-based development)
+azmi() {
+    az login --identity
+    if [ -n "${ARM_SUBSCRIPTION_ID:-}" ]; then
+        az account set --subscription "$ARM_SUBSCRIPTION_ID"
+    fi
+    azctx
+}
+
 # History settings
 export HISTSIZE=50000
 export SAVEHIST=50000
@@ -177,17 +196,50 @@ echo "" >> "$ZSHRC"
 echo "# Load environment variables from .env if present" >> "$ZSHRC"
 echo "[ -f \"$WORKSPACE_DIR/.env\" ] && source \"$WORKSPACE_DIR/.env\"" >> "$ZSHRC"
 
-# Configure .bashrc for bash users
+# Configure .bashrc for bash users - ensure mise is activated
 BASHRC="/home/vscode/.bashrc"
 if [ -f "$BASHRC" ]; then
+    # Remove any existing mise activation to avoid duplicates
+    sed -i '/# Mise activation/d' "$BASHRC"
+    sed -i '/eval "$(.*mise activate bash.*)"/d' "$BASHRC"
+
     echo "" >> "$BASHRC"
-    echo "# Mise is automatically activated by the devcontainer feature" >> "$BASHRC"
+    echo "# Mise activation - adds tools from mise.toml to PATH" >> "$BASHRC"
+    echo 'eval "$(mise activate bash)"' >> "$BASHRC"
+fi
+
+# Configure .zshrc for zsh users - ensure mise is activated
+if [ -f "$ZSHRC" ]; then
+    # Check if mise activation already exists
+    if ! grep -q 'mise activate zsh' "$ZSHRC" 2>/dev/null; then
+        echo "" >> "$ZSHRC"
+        echo "# Mise activation - adds tools from mise.toml to PATH" >> "$ZSHRC"
+        echo 'eval "$(mise activate zsh)"' >> "$ZSHRC"
+    fi
+fi
+
+# Also create a profile.d script for non-interactive shells
+mkdir -p /home/vscode/.local/share/mise/profile.d
+cat > /home/vscode/.local/share/mise/profile.d/mise-path.sh << 'MISE_PATH'
+# Add mise shims to PATH for non-interactive shells
+export PATH="/home/vscode/.local/share/mise/shims:$PATH"
+MISE_PATH
+
+# Source the profile.d script from .profile for login shells
+PROFILE="/home/vscode/.profile"
+if [ -f "$PROFILE" ]; then
+    if ! grep -q 'mise/profile.d' "$PROFILE" 2>/dev/null; then
+        echo "" >> "$PROFILE"
+        echo "# Mise shims for non-interactive shells" >> "$PROFILE"
+        echo '[ -f "$HOME/.local/share/mise/profile.d/mise-path.sh" ] && . "$HOME/.local/share/mise/profile.d/mise-path.sh"' >> "$PROFILE"
+    fi
 fi
 
 echo "=== Post-Create Setup Complete ==="
 echo ""
 echo "Tools installed via mise (from mise.toml):"
 echo "  - OpenTofu, Terragrunt, TFLint, Trivy, Just, terraform-docs"
+echo "  - Ansible, ansible-lint, yamllint, pre-commit"
 echo ""
 echo "Available commands:"
 echo "  infrahelp  - Show quick reference for all commands"
@@ -196,7 +248,8 @@ echo "  tofucheck  - Run format, validate, lint, and security scan"
 echo "  tofuready  - Run init, validate, and plan"
 echo "  azctx      - Show current Azure context"
 echo "  azsw       - Switch Azure subscription interactively"
-echo "  azsp       - Login with Service Principal from ARM_* environment variables"
+echo "  azsp       - Login with Service Principal (requires ARM_* env vars)"
+echo "  azmi       - Login with Managed Identity (for Azure VMs)"
 echo "  tfscan     - Run Trivy security scan"
 echo "  tofudocs   - Generate OpenTofu documentation"
 echo ""

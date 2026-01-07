@@ -3,6 +3,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
   "containerUser": "vscode",
   "remoteUser": "vscode",
@@ -18,29 +19,22 @@
       "upgradePackages": true
     },
     "ghcr.io/devcontainers/features/azure-cli:1": {
-      "version": "latest",
+      "version": "2.81.0",
       "extensions": "account,resource-graph,containerapp,aks-preview,front-door"
-    },
-    "ghcr.io/devcontainers-extra/features/opentofu:1": {
-      "version": "latest"
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
-      "moby": true,
+      "moby": false,
       "dockerDashComposeVersion": "v2",
       "installDockerBuildx": true
     },
     "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "latest"
+      "version": "2.83.2"
     },
     "ghcr.io/devcontainers/features/powershell:1": {
-      "version": "latest"
+      "version": "7.5.4"
     },
     "ghcr.io/schlich/devcontainer-features/powerlevel10k:1": {},
-    "ghcr.io/devcontainers-extra/features/ansible:2": {
-      "version": "latest",
-      "injections": "ansible-lint yamllint"
-    },
     "ghcr.io/devcontainers-extra/features/mise:1": {}
   },
 
@@ -232,7 +226,7 @@
         "opentofu.experimentalFeatures.validateOnSave": true,
         "opentofu.experimentalFeatures.prefillRequiredFields": true,
 
-        "ansible.python.interpreterPath": "/usr/local/bin/python",
+        "ansible.python.interpreterPath": "/home/vscode/.local/share/mise/shims/python",
         "ansible.validation.enabled": true,
         "ansible.validation.lint.enabled": true,
 
@@ -246,6 +240,16 @@
 
         "todo-tree.general.tags": ["TODO", "FIXME", "HACK", "SECURITY"],
 
+        "cSpell.language": "en-GB",
+        "cSpell.enabledFileTypes": {
+          "terraform": true,
+          "hcl": true,
+          "markdown": true,
+          "yaml": true,
+          "json": true,
+          "shellscript": true,
+          "toml": true
+        },
         "cSpell.words": [
           "azurerm",
           "opentofu",

@@ -1,11 +1,20 @@
-# Tool versions managed by mise
-# DevContainer: mise install (runs automatically via post-create.sh)
-# Local: mise install
+# Tool versions - Single source of truth for CI and devcontainer
+# Both GitHub Actions and devcontainer read versions from this file
+#
+# Usage:
+#   - DevContainer: mise install (runs automatically via post-create.sh)
+#   - CI: jdx/mise-action (reads this file)
+#
 
 [tools]
-opentofu = "latest"
-terragrunt = "latest"
-tflint = "latest"
-trivy = "latest"
-just = "latest"
-terraform-docs = "latest"
+opentofu = "1.11.2"
+terragrunt = "0.97.0"
+tflint = "0.60.0"
+trivy = "0.68.2"
+just = "1.46.0"
+terraform-docs = "0.21.0"
+pre-commit = "4.5.1"
+uv = "0.9.22"
+"pipx:ansible" = "13.2.0"
+"pipx:ansible-lint" = "25.12.2"
+"pipx:yamllint" = "1.37.1"
