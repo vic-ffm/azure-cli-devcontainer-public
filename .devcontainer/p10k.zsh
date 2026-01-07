@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: NCSA
+# Copyright (c) State Government of Victoria 2025-2026. See LICENSE for details.
 # Powerlevel10k Lean ASCII Configuration
 
 'builtin' 'local' '-a' 'p10k_config_opts'

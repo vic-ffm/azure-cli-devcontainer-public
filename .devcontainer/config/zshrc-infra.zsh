@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: NCSA
+# Copyright (c) State Government of Victoria 2025-2026. See LICENSE for details.
 # ============================================
 # Infrastructure Development Shell Config
 # Additional aliases, functions, and completions

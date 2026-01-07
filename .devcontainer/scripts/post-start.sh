@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/env bash
+# SPDX-License-Identifier: NCSA
+# Copyright (c) State Government of Victoria 2025-2026. See LICENSE for details.
 set -e
 
 # Activate mise to ensure tools are available in non-interactive shell

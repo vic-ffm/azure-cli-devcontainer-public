@@ -379,6 +379,6 @@ Modifications to the devcontainer configuration should be submitted via pull req
 
 ## Licence
 
-Copyright (c) 2025-Present State Government of Victoria.
+Copyright (c) State Government of Victoria 2025-2026. All rights reserved.
 
-This project is licenced under the MIT Licence. See [LICENSE](LICENSE) for details.
+This project is licensed under the University of Illinois/NCSA Open Source Licence (UIUC). See [LICENSE](LICENSE) for details.
